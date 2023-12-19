@@ -1,0 +1,28 @@
+{
+    "tracks": [{
+        "url": "https://youtu.be/watch?v=dQw4w9WgXcQ",
+        "timing_offset": 161.2,
+        "timing_sections": [[Infinity, 113.6]],
+        "data": [{
+            "song_beat": 0,
+            "start_beat": 0,
+            "duration_beats": 64,
+            "track_beats_per_song_beat": 1,
+            "pitch": 5,
+            "volume": 1
+        }]
+    }, {
+        "url": "https://www.youtube.com/watch?v=xtfXl7TZTac",
+        "timing_offset": 208.3,
+        "timing_sections": [[Infinity, 130]],
+        "data": [{
+            "song_beat": 0,
+            "start_beat": 0,
+            "duration_beats": 64,
+            "track_beats_per_song_beat": 1,
+            "pitch": 0,
+            "volume": 0.5
+        }]
+    }],
+    "beat_timer": [[Infinity, 130]]
+}
