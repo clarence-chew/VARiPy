@@ -1,4 +1,5 @@
 import json
+import tkinter as tk
 
 def read_file(file):
     """
@@ -70,3 +71,10 @@ def read_json_file(filename):
             return json.load(file)
     except:
         return None
+
+TKINTER_ROOT = None
+def get_tkinter_root():
+    global TKINTER_ROOT
+    if TKINTER_ROOT is None:
+        TKINTER_ROOT = tk.Tk()
+    return TKINTER_ROOT

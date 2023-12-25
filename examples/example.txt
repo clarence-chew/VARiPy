@@ -1,7 +1,7 @@
 {
     "tracks": [{
         "url": "https://youtu.be/watch?v=dQw4w9WgXcQ",
-        "timing_offset": 161.2,
+        "timing_offset": 161.1,
         "timing_sections": [[Infinity, 113.6]],
         "data": [{
             "song_beat": 0,

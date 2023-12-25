@@ -1,8 +1,8 @@
 # Browser Driver
-.exe
+*.exe
 
 # Visual Studio Code
-.code-workspace
+*.code-workspace
 
 # Python Files
 __pycache__/

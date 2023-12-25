@@ -1,6 +1,5 @@
 from bisect import bisect_left
 from commons import read_file, constrain
-from config import MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT
 import json
 import os
 from selenium import webdriver
@@ -8,20 +7,15 @@ from selenium.webdriver.chrome.service import Service
 from task_timer import get_task_timer
 from time_value import TimeValue
 from timing import BeatTimer, OffsetBeatTimer
-import tkinter as tk
 from track_section import TrackSection
 
 MILLISECONDS_PER_SECOND = 1000
 
-def get_chrome_driver_path():
-    # Get the directory where the current Python script is located
+def get_absolute_path(relative_path):
     current_directory = os.path.dirname(os.path.abspath(__file__))
-
-    # Specify the relative path to the driver executable from the script's directory
-    relative_path = "chromedriver.exe"
     return os.path.join(current_directory, relative_path)
 
-DRIVER_PATH = get_chrome_driver_path()
+DRIVER_PATH = get_absolute_path("chromedriver.exe")
 VIDEO_JS_CODE = read_file("min_js.txt")
 
 def get_chrome_driver(window_name=None):
@@ -31,56 +25,38 @@ def get_chrome_driver(window_name=None):
     # Allow videos to autoplay and run Web Audio automatically
     # More switches at https://peter.sh/experiments/chromium-command-line-switches/
     options.add_argument("--autoplay-policy=no-user-gesture-required")
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument("--disable-web-security") # TODO check remove
-    options.add_argument("--disable-gpu") # TODO check remove
-    options.add_argument("--disable-features=IsolateOrigins,site-per-process") # TODO check remove
-    #options.add_argument("--user-data-dir='C://ChromeDev'")
+    options.add_argument('--blink-settings=imagesEnabled=false,hideScrollbars=true')
+    #options.add_argument("--app='about:blank'")
+    #options.add_argument('--ignore-certificate-errors')
+    #options.add_argument("--disable-web-security") # TODO check remove
+    #options.add_argument("--disable-gpu") # TODO check remove
+    #options.add_argument("--disable-features=IsolateOrigins,site-per-process") # TODO check remove
+    options.add_argument("--guest")
     if window_name: options.add_argument('--window-name="{window_name}"')
     # Keep running after code ends
     options.add_experimental_option("detach", True)
-    
+    # Remove banner
+    options.add_experimental_option("excludeSwitches", ["enable-automation"]); 
     return webdriver.Chrome(service=service, options=options)
 
-TKINTER_ROOT = None
-def get_tkinter_root():
-    global TKINTER_ROOT
-    if TKINTER_ROOT is None:
-        TKINTER_ROOT = tk.Tk()
-    return TKINTER_ROOT
-
-WINDOW_POSITIONS = []
-WINDOW_COUNT = 0
-WINDOW_WIDTH = 0
-WINDOW_HEIGHT = 0
-def get_unused_window_position():
-    global WINDOW_POSITIONS, WINDOW_COUNT, WINDOW_WIDTH, WINDOW_HEIGHT
-    if WINDOW_COUNT == 0:
-        root = get_tkinter_root()
-        screen_width = root.winfo_screenwidth()
-        screen_height = root.winfo_screenheight()
-        window_count_width = screen_width // MIN_WINDOW_WIDTH
-        window_count_height = screen_height // MIN_WINDOW_HEIGHT
-        WINDOW_WIDTH = screen_width // window_count_width
-        WINDOW_HEIGHT = screen_height // window_count_height
-        WINDOW_POSITIONS = [(x,y) for y in range(0, screen_height, WINDOW_HEIGHT)
-            for x in range(0, screen_width, WINDOW_WIDTH)]
-    WINDOW_COUNT += 1
-    return WINDOW_POSITIONS[WINDOW_COUNT - 1]
-
 class TrackDriver():
-    def __init__(self, url):
-        driver = get_chrome_driver()
-        driver.get(url)
-        driver.set_window_position(*get_unused_window_position())
-        driver.set_window_size(WINDOW_WIDTH, WINDOW_HEIGHT)
-        driver.execute_script(VIDEO_JS_CODE)
-        driver.execute_script("document.getElementsByTagName('video')[0].crossOrigin='anonymous';") # TODO check remove
-        driver.execute_script("document.getElementsByTagName('video')[0].pause()")
-        
-        #driver.execute_script("window.video=document.getElementsByTagName('video')[0];window.video.volume=0;window.setPitchSpeed(0,16);")
-        self.driver = driver
+    def __init__(self):
+        self.driver = get_chrome_driver()
+    
+    def set_window_dimensions(self, x, y, w, h):
+        self.driver.set_window_position(x, y)
+        self.driver.set_window_size(w, h)
 
+    def set_url(self, url):
+        self.driver.get(url)
+        self.driver.execute_script(VIDEO_JS_CODE)
+        # self.driver.execute_script("document.getElementsByTagName('video')[0].crossOrigin='anonymous';") # TODO check remove
+        self.driver.execute_script("document.getElementsByTagName('video')[0].pause()")
+        # self.driver.execute_script("window.video=document.getElementsByTagName('video')[0];window.video.volume=0;window.setPitchSpeed(0,16);")
+
+    def clear_url(self):
+        self.driver.get("about:blank")
+        
     def play_video(self, **kwargs):
         """
         Plays the video now with a custom video start time and duration.
@@ -112,10 +88,19 @@ class TrackDriver():
         self.driver.quit()
 
 class BeatTrackDriver():
-    def __init__(self, url, offset, sections):
-        self.track_driver = TrackDriver(url)
-        self.offset_beat_timer = OffsetBeatTimer(TimeValue(seconds=offset), sections)
+    def __init__(self):
+        self.track_driver = TrackDriver()
+        self.offset_beat_timer = None
     
+    def set_url(self, url):
+        self.track_driver.set_url(url)
+    
+    def set_offset_sections(self, offset, sections):
+        self.offset_beat_timer = OffsetBeatTimer(TimeValue(seconds=offset), sections)
+
+    def set_window_dimensions(self, x, y, w, h):
+        self.track_driver.set_window_dimensions(x, y, w, h)
+
     def play_video(self, *, song_beat_timer: BeatTimer, track_section: TrackSection):
         song_beat = track_section.song_beat
         video_beats_per_song_beat = track_section.track_beats_per_song_beat
@@ -165,6 +150,10 @@ class BeatTrackDriver():
 
     def pause_video(self):
         self.track_driver.pause_video()
+
+    def clear_data(self):
+        self.track_driver.clear_url()
+        self.offset_beat_timer = None
 
     def exit(self):
         self.track_driver.exit()
