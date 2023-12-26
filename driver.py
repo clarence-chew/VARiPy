@@ -4,6 +4,9 @@ import json
 import os
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from task_timer import get_task_timer
 from time_value import TimeValue
 from timing import BeatTimer, OffsetBeatTimer
@@ -51,6 +54,7 @@ class TrackDriver():
         self.driver.get(url)
         self.driver.execute_script(VIDEO_JS_CODE)
         # self.driver.execute_script("document.getElementsByTagName('video')[0].crossOrigin='anonymous';") # TODO check remove
+        WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "video")))
         self.driver.execute_script("document.getElementsByTagName('video')[0].pause()")
         # self.driver.execute_script("window.video=document.getElementsByTagName('video')[0];window.video.volume=0;window.setPitchSpeed(0,16);")
 
@@ -109,7 +113,7 @@ class BeatTrackDriver():
     
         const_speed_sections = []
         song_beat_pointer = song_beat
-        song_start_time = song_beat_timer.time_from_beat(song_beat)
+        section_start_time = song_beat_timer.time_from_beat(song_beat)
         video_beat_pointer = video_start_beat
         beats_left = duration_beats
     
@@ -121,8 +125,8 @@ class BeatTrackDriver():
             song_beat_pointer += current_beats
         
             const_speed_sections.append((
-                # section end time compared to the time we start playing
-                song_beat_timer.time_from_beat(song_beat_pointer).milliseconds - song_start_time.milliseconds,
+                # section end time
+                song_beat_timer.time_from_beat(song_beat_pointer).milliseconds,
                 # video time when the section starts (recalibration in case of lag)
                 self.offset_beat_timer.time_from_beat(video_beat_pointer).seconds,
                 # speed of this section
@@ -134,8 +138,12 @@ class BeatTrackDriver():
         current_time = get_task_timer().get_current_time()
         start_index = bisect_left(const_speed_sections,
             current_time.milliseconds, key=lambda x: x[0])
+        if start_index == len(const_speed_sections):
+            print("too slow")
+            return # it's over
         speed = const_speed_sections[start_index][2]
-        section_time = current_time.seconds - (const_speed_sections[start_index][1] if start_index else song_start_time.seconds)
+        # number of seconds ago this section started
+        section_time = current_time.seconds - (const_speed_sections[start_index - 1][0]/1000 if start_index else section_start_time.seconds)
         start_time = const_speed_sections[start_index][1] + section_time * speed
         print(current_time) # expect around 3
         print(section_time) # expect same
@@ -143,9 +151,10 @@ class BeatTrackDriver():
             f"window.speedIndex={start_index};window.speedData={json.dumps(const_speed_sections)};"\
             f"window.video.currentTime={start_time};window.video.volume={volume};window.pitch={pitch};"\
             f"window.setPitchSpeed({pitch},{speed});"\
-            f"window.video.play();window.playTime=Date.now()-{section_time}*1000;"\
+            f"window.video.play();window.playTime=Date.now()-{current_time.milliseconds};"\
             "clearTimeout(window.trackTimeout);"\
             "window.trackTimeout=setTimeout(timeoutFn,Math.max(0,window.speedData[window.speedIndex][0]-Date.now()+window.playTime))"
+        print(script)
         self.track_driver.driver.execute_script(script)
 
     def pause_video(self):

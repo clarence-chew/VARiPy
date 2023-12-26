@@ -28,7 +28,7 @@ class TaskTimer:
         Adds a new task.
         
         Args:
-            start_time: Milliseconds after self.start.
+            start_time: TimeValue for time the callback should run.
             callback: Callback function.
         """
         if self.root:

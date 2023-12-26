@@ -31,7 +31,6 @@ Important:
   - `save [file name]` to save the remix to a file.
   - When closing remixes, reuse browser driver instances since it takes a long time to close.
   - Use multithreading to handle browser driver instances?
-- Add complex example for more integration testing.
 - Tools to help edit remixes.
   - Command parser. Split into strings by spaces, but quotes " ' (backtick) override this behaviour. If need to put a quote in a string, matching quote must appear twice, but nonmatching quote appears once.
   - Model might need to be Observable.
@@ -49,7 +48,6 @@ Important:
       - all data in track section
       - `add_section ...` define a section
       - `delete_section` delete currently selected section
-
 
 Mildly important:
 - Check if having a profile or guest profile is faster for Chrome WebDriver

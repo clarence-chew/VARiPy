@@ -16,31 +16,6 @@ from tkinter.filedialog import askopenfilename, asksaveasfilename
 TRACK_HEIGHT = 30
 CANVAS_VALID_KWARGS = ["background", "bg", "borderwidth", "bd", "closeenough", "confine", "cursor", "height", "highlightbackground", "highlightcolor", "highlightthickness", "insertbackground", "insertborderwidth", "insertontime", "insertontime", "insertwidth", "relief", "scrollregion", "selectbackground", "selectborderwidth", "selectforeground", "state", "takefocus", "width", "xscrollcommand", "xscrollincrement", "yscrollcommand", "yscrollincrement"]
 
-# TODO put into view?
-def play_music_track(track, track_driver, song_beat_timer: BeatTimer):
-    task_timer = get_task_timer()
-    current_time = task_timer.get_current_time()
-    play_music_track_section(track, track_driver, get_section_index(track, song_beat_timer.beat_from_time(current_time)), song_beat_timer)
-
-def get_section_index(track, song_beat):
-    return bisect_left(track, song_beat, key=lambda x: x["track_section"].song_end_beat)
-
-def play_music_track_section(track, track_driver: BeatTrackDriver, section_index: int, song_beat_timer: BeatTimer):
-    task_timer = get_task_timer()
-    if section_index >= len(track):
-        return
-    current_section: TrackSection = track[section_index]["track_section"]
-    def play_task():
-        track_driver.play_video(
-            song_beat_timer=song_beat_timer,
-            track_section=current_section
-        )
-        if section_index+1 < len(track):
-            play_music_track_section(track, track_driver, section_index+1, song_beat_timer)
-    task_timer.add_task(song_beat_timer.time_from_beat(current_section.song_beat), play_task)
-
-# TODO end
-
 class TrackVisualizer(tk.Canvas):
     def __init__(self, master, **kwargs):
         super().__init__(master, **subdictionary(kwargs, CANVAS_VALID_KWARGS))
@@ -56,7 +31,28 @@ class TrackVisualizer(tk.Canvas):
     def play_music(self):
         driver_manager = get_driver_manager()
         for idx, track in enumerate(self.tracks):
-            play_music_track(track, driver_manager.get_driver(idx), self.beat_timer)
+            self.play_music_track(track, driver_manager.get_driver(idx), self.beat_timer)
+
+    def play_music_track(self, track, track_driver, song_beat_timer: BeatTimer):
+        task_timer = get_task_timer()
+        current_time = task_timer.get_current_time()
+        song_beat = song_beat_timer.beat_from_time(current_time)
+        section_index = bisect_left(track, song_beat, key=lambda x: x["track_section"].song_end_beat)
+        self.play_music_track_section(track, track_driver, section_index, song_beat_timer)
+
+    def play_music_track_section(self, track, track_driver: BeatTrackDriver, section_index: int, song_beat_timer: BeatTimer):
+        task_timer = get_task_timer()
+        if section_index >= len(track):
+            return
+        current_section: TrackSection = track[section_index]["track_section"]
+        def play_task():
+            track_driver.play_video(
+                song_beat_timer=song_beat_timer,
+                track_section=current_section
+            )
+            if section_index+1 < len(track):
+                self.play_music_track_section(track, track_driver, section_index+1, song_beat_timer)
+        task_timer.add_task(song_beat_timer.time_from_beat(current_section.song_beat), play_task)
     
     def pause_music(self):
         task_timer = get_task_timer()
