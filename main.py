@@ -186,6 +186,8 @@ class RemixView:
         self.track_visualizer.play_selected_section()
     def clear_command(self):
         self.entry.delete(0, tk.END)
+    def skip_ad(self, video):
+        get_driver_manager().get_driver(video).skip_ad()
 
 class RemixController:
     def __init__(self, model: RemixModel, view: RemixView):
@@ -232,6 +234,8 @@ class RemixController:
                     clear_command = False
                 else:
                     write_json_file(self.model.serialize(), filename)
+            case ["skip_ad", video]:
+                self.view.skip_ad(int(video))
             case _:
                 self.view.display_text("unknown command")
                 clear_command = False

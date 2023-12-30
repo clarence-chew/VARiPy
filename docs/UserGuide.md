@@ -29,6 +29,7 @@
   - `play 10` Play your remix from 10 seconds in.
 - `pause` Stop playing your remix.
 - `play_section` Play the currently selected section.
+- `skip_ad [video number]` Skip video ad.
 
 ### File Commands
 - `open [file name]` to open file. Put the file name in quotes if there are spaces.
