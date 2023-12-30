@@ -121,9 +121,9 @@ class BeatTrackDriver():
             # TODO: discard negligible sections
             song_section = song_beat_timer.get_current_beat_section(song_beat_pointer)
             video_section = self.offset_beat_timer.get_current_beat_section(video_beat_pointer)
-            current_beats = min(song_section[0], video_section[0]/video_beats_per_song_beat, beats_left)
+            current_beats = min(song_section[0] * video_beats_per_song_beat, video_section[0], beats_left)
             beats_left -= current_beats
-            song_beat_pointer += current_beats
+            song_beat_pointer += current_beats / video_beats_per_song_beat
         
             const_speed_sections.append((
                 # section end time
@@ -133,7 +133,7 @@ class BeatTrackDriver():
                 # speed of this section
                 song_section[1] * video_beats_per_song_beat / video_section[1]
             ))
-            video_beat_pointer += current_beats * video_beats_per_song_beat
+            video_beat_pointer += current_beats
         pitch = track_section.pitch
         volume = constrain(track_section.volume, 0, 1)
         current_time = get_task_timer().get_current_time()
@@ -161,6 +161,9 @@ class BeatTrackDriver():
     def clear_data(self):
         self.track_driver.clear_url()
         self.offset_beat_timer = None
+    
+    def skip_ad(self):
+        self.track_driver.driver.execute_script("document.getElementsByTagName('video')[0].currentTime=1e7")
 
     def exit(self):
         self.track_driver.exit()
