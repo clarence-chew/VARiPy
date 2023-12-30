@@ -2,6 +2,10 @@
 
 Remix online music from various videos. You can specify which online videos to use.
 
+This uses Chrome WebDriver to play videos online. With a bit of JavaScript and Python, we can modify the videos and play them at certain times to form remixes.
+
+This program specifies the timing using beats, so videos need to be timed in beats, and the timing of the remix is also given in beats.
+
 Features:
 - Store your remixes in JSON files
 - Play your remixes as online videos
@@ -9,6 +13,8 @@ Features:
 
 Known issues:
 - Some sites might have CORS issues.
+- Videos are limited to being between (1/16)x and 16x speed.
+- Lag may affect the timing of the videos.
 
 Unknown issues:
 - This has only been tested on Windows.

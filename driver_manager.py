@@ -35,11 +35,11 @@ class DriverManager():
             driver.set_window_dimensions(*get_window_position(i))
             self.drivers.append(driver)
 
-    def get_driver(self, index):
+    def get_driver(self, index) -> BeatTrackDriver:
         return self.drivers[index]
 
 DRIVER_MANAGER = None
-def get_driver_manager():
+def get_driver_manager() -> DriverManager:
     global DRIVER_MANAGER
     if DRIVER_MANAGER is None:
         DRIVER_MANAGER = DriverManager()

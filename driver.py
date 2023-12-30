@@ -118,6 +118,7 @@ class BeatTrackDriver():
         beats_left = duration_beats
     
         while beats_left > 0:
+            # TODO: discard negligible sections
             song_section = song_beat_timer.get_current_beat_section(song_beat_pointer)
             video_section = self.offset_beat_timer.get_current_beat_section(video_beat_pointer)
             current_beats = min(song_section[0], video_section[0]/video_beats_per_song_beat, beats_left)
@@ -145,8 +146,6 @@ class BeatTrackDriver():
         # number of seconds ago this section started
         section_time = current_time.seconds - (const_speed_sections[start_index - 1][0]/1000 if start_index else section_start_time.seconds)
         start_time = const_speed_sections[start_index][1] + section_time * speed
-        print(current_time) # expect around 3
-        print(section_time) # expect same
         script = "window.video=document.getElementsByTagName('video')[0];window.video.pause();"\
             f"window.speedIndex={start_index};window.speedData={json.dumps(const_speed_sections)};"\
             f"window.video.currentTime={start_time};window.video.volume={volume};window.pitch={pitch};"\
@@ -154,7 +153,6 @@ class BeatTrackDriver():
             f"window.video.play();window.playTime=Date.now()-{current_time.milliseconds};"\
             "clearTimeout(window.trackTimeout);"\
             "window.trackTimeout=setTimeout(timeoutFn,Math.max(0,window.speedData[window.speedIndex][0]-Date.now()+window.playTime))"
-        print(script)
         self.track_driver.driver.execute_script(script)
 
     def pause_video(self):

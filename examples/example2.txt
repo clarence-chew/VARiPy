@@ -1,98 +1,130 @@
 {
-    "tracks": [{
-        "url": "https://youtu.be/watch?v=dQw4w9WgXcQ",
-        "timing_offset": 1.38,
-        "timing_sections": [[Infinity, 113.6]],
-        "data": [{
-            "song_beat": 63,
-            "start_beat": 303,
-            "duration_beats": 65,
-            "track_beats_per_song_beat": 1,
-            "pitch": 5,
-            "volume": 1
-        }, {
-            "song_beat": 128,
-            "start_beat": 32,
-            "duration_beats": 32,
-            "track_beats_per_song_beat": 1,
-            "pitch": 5,
-            "volume": 1
-        }, {
-            "song_beat": 160,
-            "start_beat": 32,
-            "duration_beats": 32,
-            "track_beats_per_song_beat": 1,
-            "pitch": 5,
-            "volume": 1
-        }, {
-            "song_beat": 192,
-            "start_beat": 304,
-            "duration_beats": 64,
-            "track_beats_per_song_beat": 1,
-            "pitch": 5,
-            "volume": 1
-        }, {
-            "song_beat": 256,
-            "start_beat": 304,
-            "duration_beats": 64,
-            "track_beats_per_song_beat": 1,
-            "pitch": 5,
-            "volume": 1
-        }, {
-            "song_beat": 384,
-            "start_beat": 112,
-            "duration_beats": 32,
-            "track_beats_per_song_beat": 1,
-            "pitch": 5,
-            "volume": 1
-        }, {
-            "song_beat": 416,
-            "start_beat": 112,
-            "duration_beats": 32,
-            "track_beats_per_song_beat": 1,
-            "pitch": 5,
-            "volume": 1
-        }, {
-            "song_beat": 448,
-            "start_beat": 304,
-            "duration_beats": 64,
-            "track_beats_per_song_beat": 1,
-            "pitch": 5,
-            "volume": 1
-        }, {
-            "song_beat": 512,
-            "start_beat": 304,
-            "duration_beats": 64,
-            "track_beats_per_song_beat": 1,
-            "pitch": 5,
-            "volume": 1
-        }, {
-            "song_beat": 512,
-            "start_beat": 304,
-            "duration_beats": 64,
-            "track_beats_per_song_beat": 1,
-            "pitch": 5,
-            "volume": 1
-        }, {
-            "song_beat": 512,
-            "start_beat": 304,
-            "duration_beats": 64,
-            "track_beats_per_song_beat": 1,
-            "pitch": 5,
-            "volume": 1
-        }]
-    }, {
-        "url": "https://www.nicovideo.jp/watch/sm26111500",
-        "timing_offset": 0.88,
-        "timing_sections": [[Infinity, 170]],
-        "data": [{
-            "song_beat": 0,
-            "start_beat": 0,
-            "duration_beats": 640,
-            "track_beats_per_song_beat": 1,
-            "pitch": 0,
-            "volume": 0.5
-        }]
-    }],
-    "beat_timer": [[Infinity, 200]]
+  "tracks": [
+    {
+      "url": "https://youtu.be/watch?v=dQw4w9WgXcQ",
+      "timing_offset": 1.38,
+      "timing_sections": [
+        [
+          Infinity,
+          113.6
+        ]
+      ],
+      "data": [
+        {
+          "song_beat": 63,
+          "start_beat": 303,
+          "duration_beats": 65,
+          "track_beats_per_song_beat": 1,
+          "pitch": 5,
+          "volume": 1
+        },
+        {
+          "song_beat": 128,
+          "start_beat": 32,
+          "duration_beats": 32,
+          "track_beats_per_song_beat": 1,
+          "pitch": 5,
+          "volume": 1
+        },
+        {
+          "song_beat": 160,
+          "start_beat": 32,
+          "duration_beats": 32,
+          "track_beats_per_song_beat": 1,
+          "pitch": 5,
+          "volume": 1
+        },
+        {
+          "song_beat": 192,
+          "start_beat": 304,
+          "duration_beats": 64,
+          "track_beats_per_song_beat": 1,
+          "pitch": 5,
+          "volume": 1
+        },
+        {
+          "song_beat": 256,
+          "start_beat": 304,
+          "duration_beats": 64,
+          "track_beats_per_song_beat": 1,
+          "pitch": 5,
+          "volume": 1
+        },
+        {
+          "song_beat": 384,
+          "start_beat": 112,
+          "duration_beats": 32,
+          "track_beats_per_song_beat": 1,
+          "pitch": 5,
+          "volume": 1
+        },
+        {
+          "song_beat": 416,
+          "start_beat": 112,
+          "duration_beats": 32,
+          "track_beats_per_song_beat": 1,
+          "pitch": 5,
+          "volume": 1
+        },
+        {
+          "song_beat": 448,
+          "start_beat": 304,
+          "duration_beats": 64,
+          "track_beats_per_song_beat": 1,
+          "pitch": 5,
+          "volume": 1
+        },
+        {
+          "song_beat": 512,
+          "start_beat": 304,
+          "duration_beats": 64,
+          "track_beats_per_song_beat": 1,
+          "pitch": 5,
+          "volume": 1
+        },
+        {
+          "song_beat": 512,
+          "start_beat": 304,
+          "duration_beats": 64,
+          "track_beats_per_song_beat": 1,
+          "pitch": 5,
+          "volume": 1
+        },
+        {
+          "song_beat": 512,
+          "start_beat": 304,
+          "duration_beats": 64,
+          "track_beats_per_song_beat": 1,
+          "pitch": 5,
+          "volume": 1
+        }
+      ]
+    },
+    {
+      "url": "https://www.nicovideo.jp/watch/sm26111500",
+      "timing_offset": 0.88,
+      "timing_sections": [
+        [
+          Infinity,
+          170
+        ]
+      ],
+      "data": [
+        {
+          "song_beat": 0,
+          "start_beat": 0,
+          "duration_beats": 640,
+          "track_beats_per_song_beat": 1,
+          "pitch": 0,
+          "volume": 0.5
+        }
+      ]
+    }
+  ],
+  "beat_timer": [
+    [
+      Infinity,
+      200
+    ]
+  ]
 }
