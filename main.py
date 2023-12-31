@@ -228,7 +228,7 @@ class RemixController:
             case ["save"]:
                 write_json_file(self.model.serialize(), self.current_file)
             case ["save_as", *args]:
-                filename = args[0] if args else askopenfilename()
+                filename = args[0] if args else asksaveasfilename()
                 if filename == "":
                     self.view.display_text("no file chosen")
                     clear_command = False
