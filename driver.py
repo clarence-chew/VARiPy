@@ -51,6 +51,9 @@ class TrackDriver():
         self.driver.set_window_size(w, h)
 
     def set_url(self, url):
+        # Optimisation: Don't reload pages that are already correct.
+        if self.driver.current_url == url:
+            return
         self.driver.get(url)
         self.driver.execute_script(VIDEO_JS_CODE)
         # self.driver.execute_script("document.getElementsByTagName('video')[0].crossOrigin='anonymous';") # TODO check remove

@@ -1,7 +1,7 @@
 {
   "tracks": [
     {
-      "url": "https://youtu.be/watch?v=dQw4w9WgXcQ",
+      "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
       "timing_offset": 161.1,
       "timing_sections": [
         [

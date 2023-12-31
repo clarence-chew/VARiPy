@@ -15,6 +15,7 @@ Known issues:
 - Some sites might have CORS issues.
 - Videos are limited to being between (1/16)x and 16x speed.
 - Lag may affect the timing of the videos.
+- Using shortened URLs increase reloading time since we detect if the URL is the same to skip reloading.
 
 Unknown issues:
 - This has only been tested on Windows.
