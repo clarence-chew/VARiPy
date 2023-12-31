@@ -27,8 +27,30 @@ Currently:
 - Feature freeze.
   - Bugs would be fixed at our discretion.
 
+Very Important:
+- Allow for more tools in JavaScript:
+  - Allow users to specify effects with `.js` files, then reference these functions in the JSON-like file by name.
+  - Probably add some way to specify these effects in the `config.py` file.
+  - Add `effects: ["customEffect"]` in `TrackSection`. Effects are applied in sequence.
+```javascript
+// What users specify:
+function customEffect(context, audioNode) {
+  filter = context.createBiquadFilter();
+  audioNode.connect(filter);
+  filter.type = "lowpass";
+  filter.frequency.value = 1000;
+  return filter;
+};
+// How it's used
+context = new AudioContext();
+audioNode = context.createMediaElementSource(document.getElementsByTagName("video")[0]);
+audioNode = customEffect(context, audioNode); // apply effect
+// ... (more effects) ...
+audioNode = pitchShift(audioNode); // do pitch shift last
+audioNode.connect(context.destination); // connect to destination
+```
+
 Important:
-- Use multithreading to handle browser driver instances?
 - Tools to help edit remixes.
   - Model might need to be Observable.
   - Things to edit:
@@ -48,6 +70,7 @@ Important:
   - Tools like being able to play a track to check if bpm and offset are correct, and playing from nth beat.
 
 Mildly important:
+- Use multithreading to handle browser driver instances
 - Check if having a profile or guest profile is faster for Chrome WebDriver
 - Check if we can speed up Chrome WebDriver by loading fewer elements
 

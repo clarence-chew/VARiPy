@@ -1,21 +1,25 @@
 # User Guide
 
-## Installation Instructions
+## How to Run
 
+1. Ensure you have Python 3.10 or above.
 1. Create a local fork of the repo.
-2. Download the [Chrome WebDriver](https://googlechromelabs.github.io/chrome-for-testing/).
-3. Place the Chrome WebDriver executable in the same directory as this README.
+1. Download the [Chrome WebDriver](https://googlechromelabs.github.io/chrome-for-testing/).
+1. Place the Chrome WebDriver executable in the same directory as this README.
+1. Run the `main.py` file. (For instance, by using `python main.py`.)
 
-## How to Run/Workflow
+## Important Tips
 
-- Run `main.py`.
 - You can start from any of the given examples to make your own remix.
 - You can use `config.py` to set the default file as the one you are working on, or simply use `open` to open your file.
 - Keep your text editor open to edit the file.
 - When you want to load the edited file into the program, use the `reload` command.
 
+## UI Explanation
+
 ![UI](images/ui.png)
 
+- As of the current version, the UI is intended to help you play the remix.
 - The top textbox is for inputting commands.
 - The next box stores command output information.
 - The visualization shows when the tracks are playing in the remix. In the image, two tracks are shown, where the second track is played for a long time and the first one has many different sections.
@@ -40,6 +44,7 @@
 - `save` to save the remix to the last opened file.
 
 ### Other Commands
+- `eval [expression]` Evaluate the given expression. No quotes should be used around the expression. The application basically evaluates the string from the 6th character.
 - `exit` Quit the program.
 
 ## Data File Format
@@ -64,4 +69,4 @@ In `config.py`, you can set the following:
 - Width and height of the windows
   - The program would automatically find values to help tile the screen with windows of at least that size. Note Chrome WebDriver windows are 500px wide.
 - Default file
-  - If nonempty string, the program would automatically open that file on load.
+  - If this is a nonempty string, the program would automatically open that file on load.

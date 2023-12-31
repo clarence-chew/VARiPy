@@ -202,8 +202,14 @@ class RemixController:
         clear_command = True
         self.view.display_text("") # clear from previous command
         match tokens:
-            case ["eval", *args]:
-                print(eval(command[5:])) # debugging purposes
+            case ["eval", *args]: # debugging purposes
+                try:
+                    result = eval(command[5:]) 
+                    self.view.display_text(result)
+                    print(result)
+                except Exception as e:
+                    self.view.display_text(repr(e))
+                    print(repr(e))
             case ["exit"]:
                 self.clear_data()
                 self.view.root.destroy()
