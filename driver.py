@@ -31,9 +31,13 @@ def get_chrome_driver(window_name=None):
     options.add_argument("--autoplay-policy=no-user-gesture-required")
     options.add_argument('--blink-settings=imagesEnabled=false,hideScrollbars=true')
     options.add_argument('--enable-chrome-browser-cloud-management')
+
+    # These three should deal with the "Failed to decode OID: 0" issue.
+    options.add_argument('--ignore-certificate-errors')
+    options.add_argument('--disable-web-security')
+    options.add_argument('--allow-running-insecure-content')
+
     #options.add_argument("--app='about:blank'")
-    #options.add_argument('--ignore-certificate-errors')
-    #options.add_argument("--disable-web-security") # TODO check remove
     #options.add_argument("--disable-gpu") # TODO check remove
     #options.add_argument("--disable-features=IsolateOrigins,site-per-process") # TODO check remove
     options.add_argument("--guest")
