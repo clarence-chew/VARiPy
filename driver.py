@@ -41,7 +41,7 @@ def get_chrome_driver(window_name=None):
     #options.add_argument("--disable-gpu") # TODO check remove
     #options.add_argument("--disable-features=IsolateOrigins,site-per-process") # TODO check remove
     options.add_argument("--guest")
-    if window_name: options.add_argument('--window-name="{window_name}"')
+    if window_name: options.add_argument(f'--window-name="{window_name}"')
     # Keep running after code ends
     options.add_experimental_option("detach", True)
     # Remove banner
