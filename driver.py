@@ -4,10 +4,8 @@ from config import DISCARD_NEGLIGIBLE_SECTIONS
 import json
 import os
 from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from task_timer import get_task_timer
 from time_value import TimeValue
 from timing import BeatTimer, OffsetBeatTimer
@@ -33,8 +31,8 @@ def get_chrome_driver(window_name=None):
     options.add_argument('--enable-chrome-browser-cloud-management')
 
     # These three should deal with the "Failed to decode OID: 0" issue.
-    options.add_argument('--ignore-certificate-errors')
-    # options.add_argument('--disable-web-security')
+    # options.add_argument('--ignore-certificate-errors')
+    options.add_argument('--disable-web-security')
     # options.add_argument('--allow-running-insecure-content')
 
     #options.add_argument("--app='about:blank'")
@@ -50,17 +48,43 @@ def get_chrome_driver(window_name=None):
 
 class TrackDriver():
     def __init__(self):
-        self.driver = get_chrome_driver()
+        self.init_driver()
+
+    def init_driver(self):
+        is_init = False
+        while not is_init:
+            try:
+                self.driver = get_chrome_driver()
+                is_init = True
+            except Exception as e:
+                # Check if the error message contains the specific text you provided
+                if "Failed to decode OID" in str(e):
+                    print("Caught error: Failed to decode OID - restarting driver")
+                else:
+                    raise e
     
     def set_window_dimensions(self, x, y, w, h):
+        self.dimensions = (x, y, w, h)
         self.driver.set_window_position(x, y)
         self.driver.set_window_size(w, h)
+    
+    def restore_window_dimensions(self):
+        self.driver.set_window_position(self.dimensions[0], self.dimensions[1])
+        self.driver.set_window_size(self.dimensions[2], self.dimensions[3])
 
     def set_url(self, url):
         # Optimisation: Don't reload pages that are already correct.
         if self.driver.current_url == url:
             return
-        self.driver.get(url)
+        is_run = False
+        while not is_run:
+            try:
+                self.driver.get(url)
+                is_run = True
+            except WebDriverException as e:
+                print("Caught error: WebDriverException - restarting driver")
+                self.init_driver()
+                self.restore_window_dimensions()
         self.driver.execute_script(VIDEO_JS_CODE)
         self.driver.execute_script("window.trackTimeout=setInterval("
             "()=>{let v=document.getElementsByTagName('video')[0];"
