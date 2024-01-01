@@ -58,10 +58,9 @@ class TrackDriver():
             return
         self.driver.get(url)
         self.driver.execute_script(VIDEO_JS_CODE)
-        # self.driver.execute_script("document.getElementsByTagName('video')[0].crossOrigin='anonymous';") # TODO check remove
-        WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "video")))
-        self.driver.execute_script("document.getElementsByTagName('video')[0].pause()")
-        # self.driver.execute_script("window.video=document.getElementsByTagName('video')[0];window.video.volume=0;window.setPitchSpeed(0,16);")
+        self.driver.execute_script("window.trackTimeout=setInterval("
+            "()=>{let v=document.getElementsByTagName('video')[0];"
+            "v&&(v.pause(),clearInterval(window.trackTimeout),console.log('clear'))}, 500)")
 
     def clear_url(self):
         self.driver.get("about:blank")
