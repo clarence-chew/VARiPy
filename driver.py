@@ -142,7 +142,7 @@ class TrackDriver():
         """
         Pauses the video.
         """
-        self.driver.execute_script("document.getElementsByTagName('video')[0].pause();clearInterval(window.trackTimeout);")
+        self.execute_script("document.getElementsByTagName('video')[0].pause();clearInterval(window.trackTimeout);")
 
     def exit(self):
         """
@@ -213,7 +213,7 @@ class BeatTrackDriver():
             f"window.video.play();window.playTime=Date.now()-{current_time.milliseconds};"\
             "clearTimeout(window.trackTimeout);"\
             "window.trackTimeout=setTimeout(timeoutFn,Math.max(0,window.speedData[window.speedIndex][0]-Date.now()+window.playTime))"
-        self.track_driver.driver.execute_script(script)
+        self.track_driver.execute_script(script)
 
     def pause_video(self):
         self.track_driver.pause_video()
@@ -223,7 +223,7 @@ class BeatTrackDriver():
         self.offset_beat_timer = None
     
     def skip_ad(self):
-        self.track_driver.driver.execute_script("document.getElementsByTagName('video')[0].currentTime=1e7")
+        self.track_driver.execute_script("document.getElementsByTagName('video')[0].currentTime=1e7")
 
     def exit(self):
         self.track_driver.exit()
