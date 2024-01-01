@@ -1,4 +1,9 @@
-# height and width of browser windows
+DEFAULT_FILE = "examples/example.txt"
+DISCARD_NEGLIGIBLE_SECTIONS = True
+
+# UI Settings
+TRACK_HEIGHT = 30
 MIN_WINDOW_WIDTH = 500
 MIN_WINDOW_HEIGHT = 300
-DEFAULT_FILE = "examples/example.txt"
+
+

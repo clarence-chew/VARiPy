@@ -1,5 +1,6 @@
 from bisect import bisect_left
 from commons import read_file, constrain
+from config import DISCARD_NEGLIGIBLE_SECTIONS
 import json
 import os
 from selenium import webdriver
@@ -29,6 +30,7 @@ def get_chrome_driver(window_name=None):
     # More switches at https://peter.sh/experiments/chromium-command-line-switches/
     options.add_argument("--autoplay-policy=no-user-gesture-required")
     options.add_argument('--blink-settings=imagesEnabled=false,hideScrollbars=true')
+    options.add_argument('--enable-chrome-browser-cloud-management')
     #options.add_argument("--app='about:blank'")
     #options.add_argument('--ignore-certificate-errors')
     #options.add_argument("--disable-web-security") # TODO check remove
@@ -121,21 +123,22 @@ class BeatTrackDriver():
         beats_left = duration_beats
     
         while beats_left > 0:
-            # TODO: discard negligible sections
             song_section = song_beat_timer.get_current_beat_section(song_beat_pointer)
             video_section = self.offset_beat_timer.get_current_beat_section(video_beat_pointer)
             current_beats = min(song_section[0] * video_beats_per_song_beat, video_section[0], beats_left)
             beats_left -= current_beats
             song_beat_pointer += current_beats / video_beats_per_song_beat
-        
-            const_speed_sections.append((
-                # section end time
-                song_beat_timer.time_from_beat(song_beat_pointer).milliseconds,
-                # video time when the section starts (recalibration in case of lag)
-                self.offset_beat_timer.time_from_beat(video_beat_pointer).seconds,
-                # speed of this section
-                song_section[1] * video_beats_per_song_beat / video_section[1]
-            ))
+            # one sample > 1e-8 minutes, negligible
+            section_is_negligible = current_beats / video_beats_per_song_beat / song_section[1] < 1e-8
+            if not DISCARD_NEGLIGIBLE_SECTIONS or not section_is_negligible:
+                const_speed_sections.append((
+                    # section end time
+                    song_beat_timer.time_from_beat(song_beat_pointer).milliseconds,
+                    # video time when the section starts (recalibration in case of lag)
+                    self.offset_beat_timer.time_from_beat(video_beat_pointer).seconds,
+                    # speed of this section
+                    song_section[1] * video_beats_per_song_beat / video_section[1]
+                ))
             video_beat_pointer += current_beats
         pitch = track_section.pitch
         volume = constrain(track_section.volume, 0, 1)

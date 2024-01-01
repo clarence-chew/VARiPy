@@ -1,7 +1,7 @@
 from bisect import bisect_left
 from command_parser import parse_command
 from commons import get_tkinter_root, read_file, subdictionary, constrain, write_json_file, read_json_file
-from config import DEFAULT_FILE
+from config import DEFAULT_FILE, TRACK_HEIGHT
 from driver import BeatTrackDriver
 from driver_manager import get_driver_manager
 from scrollable_canvas import ScrollableCanvas
@@ -15,7 +15,6 @@ import sys
 import tkinter as tk
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 
-TRACK_HEIGHT = 30
 CANVAS_VALID_KWARGS = ["background", "bg", "borderwidth", "bd", "closeenough", "confine", "cursor", "height", "highlightbackground", "highlightcolor", "highlightthickness", "insertbackground", "insertborderwidth", "insertontime", "insertontime", "insertwidth", "relief", "scrollregion", "selectbackground", "selectborderwidth", "selectforeground", "state", "takefocus", "width", "xscrollcommand", "xscrollincrement", "yscrollcommand", "yscrollincrement"]
 
 class TrackVisualizer(tk.Canvas):
@@ -125,7 +124,7 @@ class TrackVisualizer(tk.Canvas):
                 "rect_id": self.create_rectangle(
                     track_section.song_beat, idx * TRACK_HEIGHT,
                     track_section.song_end_beat, (idx + 1) * TRACK_HEIGHT,
-                    fill="#333333", width=3)
+                    fill="#333333", width=2)
             } for track_section in (TrackSection(**section_data) for section_data in track["data"])])
 
     def set_cursor_position(self, position):
@@ -149,17 +148,19 @@ class RemixView:
 
         # Create the entry widget
         self.entry = tk.Entry(self.root, width=40)
-        self.entry.pack(pady=default_pad)
+        self.entry.pack(pady=default_pad, fill=tk.X)
 
         self.text_output =  tk.Text(self.root, wrap="word", height=5, state="disabled")
-        self.text_output.pack(pady=default_pad)
+        self.text_output.pack(pady=default_pad, fill=tk.X)
 
         # Create a scrollable TrackVisualizer instance
         self.scrollable_canvas = ScrollableCanvas(self.root, TrackVisualizer, width=500, height=200, bg="white")
-        self.scrollable_canvas.pack(pady=default_pad)
+        self.scrollable_canvas.pack(pady=default_pad, fill=tk.BOTH, expand=True)
         self.track_visualizer: TrackVisualizer = self.scrollable_canvas.canvas
 
         self.timer = get_task_timer(self.root)
+    def get_command(self):
+        return self.entry.get().strip(" ")
     def display_text(self, text=""):
         self.text_output.config(state="normal")
         self.text_output.delete("1.0", tk.END)
@@ -197,7 +198,7 @@ class RemixController:
         self.current_file = ""
 
     def handle_command(self, event):
-        command = self.view.entry.get().strip(" ") # TODO remove UI specification
+        command = self.view.get_command()
         tokens = parse_command(command)
         clear_command = True
         self.view.display_text("") # clear from previous command
