@@ -34,8 +34,8 @@ def get_chrome_driver(window_name=None):
 
     # These three should deal with the "Failed to decode OID: 0" issue.
     options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--disable-web-security')
-    options.add_argument('--allow-running-insecure-content')
+    # options.add_argument('--disable-web-security')
+    # options.add_argument('--allow-running-insecure-content')
 
     #options.add_argument("--app='about:blank'")
     #options.add_argument("--disable-gpu") # TODO check remove
@@ -43,9 +43,9 @@ def get_chrome_driver(window_name=None):
     options.add_argument("--guest")
     if window_name: options.add_argument(f'--window-name="{window_name}"')
     # Keep running after code ends
-    options.add_experimental_option("detach", True)
+    # options.add_experimental_option("detach", True)
     # Remove banner
-    options.add_experimental_option("excludeSwitches", ["enable-automation"]); 
+    # options.add_experimental_option("excludeSwitches", ["enable-automation"]); 
     return webdriver.Chrome(service=service, options=options)
 
 class TrackDriver():
