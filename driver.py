@@ -4,7 +4,7 @@ from config import DISCARD_NEGLIGIBLE_SECTIONS
 import json
 import os
 from selenium import webdriver
-from selenium.common.exceptions import WebDriverException
+from selenium.common.exceptions import WebDriverException, JavascriptException
 from selenium.webdriver.chrome.service import Service
 from task_timer import get_task_timer
 from time_value import TimeValue
@@ -49,6 +49,7 @@ def get_chrome_driver(window_name=None):
 class TrackDriver():
     def __init__(self):
         self.init_driver()
+        self.current_url = "about:blank"
 
     def init_driver(self):
         is_init = False
@@ -68,13 +69,32 @@ class TrackDriver():
         self.driver.set_window_position(x, y)
         self.driver.set_window_size(w, h)
     
-    def restore_window_dimensions(self):
+    def refresh_driver(self):
+        self.init_driver()
         self.driver.set_window_position(self.dimensions[0], self.dimensions[1])
         self.driver.set_window_size(self.dimensions[2], self.dimensions[3])
+    
+    def refresh_url(self):
+        self.refresh_driver()
+        is_run = False
+        while not is_run:
+            try:
+                self.driver.get(self.current_url)
+                is_run = True
+            except WebDriverException as e:
+                print("Caught error: WebDriverException - restarting driver")
+                self.refresh_driver()
+        self.inject_scripts()
+    
+    def inject_scripts(self):
+        self.driver.execute_script(VIDEO_JS_CODE)
+        self.driver.execute_script("window.trackTimeout=setInterval("
+            "()=>{let v=document.getElementsByTagName('video')[0];"
+            "v&&(v.pause(),clearInterval(window.trackTimeout),console.log('clear'))}, 500)")
 
     def set_url(self, url):
-        # Optimisation: Don't reload pages that are already correct.
-        if self.driver.current_url == url:
+        # Don't reload pages that are already correct.
+        if self.current_url == url:
             return
         is_run = False
         while not is_run:
@@ -83,15 +103,22 @@ class TrackDriver():
                 is_run = True
             except WebDriverException as e:
                 print("Caught error: WebDriverException - restarting driver")
-                self.init_driver()
-                self.restore_window_dimensions()
-        self.driver.execute_script(VIDEO_JS_CODE)
-        self.driver.execute_script("window.trackTimeout=setInterval("
-            "()=>{let v=document.getElementsByTagName('video')[0];"
-            "v&&(v.pause(),clearInterval(window.trackTimeout),console.log('clear'))}, 500)")
+                self.refresh_driver()
+        self.current_url = url
+        self.inject_scripts()
 
     def clear_url(self):
         self.driver.get("about:blank")
+    
+    def execute_script(self, script):
+        is_executed = False
+        while not is_executed:
+            try:
+                self.driver.execute_script(script)
+                is_executed = True
+            except JavascriptException as e:
+                print("Caught error: JavaScriptException - restarting driver")
+                self.refresh_url()
         
     def play_video(self, **kwargs):
         """
@@ -102,7 +129,7 @@ class TrackDriver():
         pitch = kwargs.get("pitch", 0)
         speed = constrain(kwargs.get("speed", 1), 1/16, 16)
         volume = constrain(kwargs.get("volume", 1), 0, 1)
-        self.driver.execute_script(
+        self.execute_script(
             f"window.video=document.getElementsByTagName('video')[0];"
             f"window.video.currentTime={start_time};"
             f"window.video.volume={volume};"
