@@ -1,6 +1,6 @@
 from commons import get_tkinter_root
 from config import MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT
-from driver import BeatTrackDriver
+from controller.video import BeatTrackDriver
 
 WINDOW_POSITIONS = None
 WINDOW_COUNT = 0

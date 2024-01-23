@@ -1,22 +1,20 @@
 from bisect import bisect_left
-from command_parser import parse_command
-from commons import get_tkinter_root, read_file, subdictionary, constrain, write_json_file, read_json_file
-from config import DEFAULT_FILE, TRACK_HEIGHT
-from driver import BeatTrackDriver
-from driver_manager import get_driver_manager
-from scrollable_canvas import ScrollableCanvas
-from task_timer import get_task_timer
-from time_value import TimeValue
-from timing import BeatTimer
-from track_section import TrackSection
-from model import RemixModel, Track
+from commons import get_tkinter_root, subdictionary
+from config import TRACK_HEIGHT
+from model.music import TrackSection
+from controller.video import BeatTrackDriver, get_driver_manager
+from view.scrollable_canvas import ScrollableCanvas
+from view.settings_panel import SettingsPanel
+from controller.time import get_task_timer
+from model.time import BeatTimer
 from typing import Any
-import sys
 import tkinter as tk
-from tkinter.filedialog import askopenfilename, asksaveasfilename
+from tkinter import ttk
 
 CANVAS_VALID_KWARGS = ["background", "bg", "borderwidth", "bd", "closeenough", "confine", "cursor", "height", "highlightbackground", "highlightcolor", "highlightthickness", "insertbackground", "insertborderwidth", "insertontime", "insertontime", "insertwidth", "relief", "scrollregion", "selectbackground", "selectborderwidth", "selectforeground", "state", "takefocus", "width", "xscrollcommand", "xscrollincrement", "yscrollcommand", "yscrollincrement"]
 
+# TODO refactor as Timetable since that's what it does.
+# Refactor as view and controller
 class TrackVisualizer(tk.Canvas):
     def __init__(self, master, **kwargs):
         super().__init__(master, **subdictionary(kwargs, CANVAS_VALID_KWARGS))
@@ -104,8 +102,7 @@ class TrackVisualizer(tk.Canvas):
         return self.selected_rectangle
 
     def add_track(self, url, timing_sections):
-        self.tracks.append(Track(url=url, canvas=self, data=[],
-            timing_sections=timing_sections)) # update model carefully too
+        pass
 
     def set_data(self, data):
         self.delete("all")
@@ -144,7 +141,7 @@ class RemixView:
     def __init__(self, **kwargs):
         self.root = get_tkinter_root()
         self.root.title("Music Editor")
-        default_pad = 10
+        default_pad = 5
 
         # Create the entry widget
         self.entry = tk.Entry(self.root, width=40)
@@ -153,12 +150,27 @@ class RemixView:
         self.text_output =  tk.Text(self.root, wrap="word", height=5, state="disabled")
         self.text_output.pack(pady=default_pad, fill=tk.X)
 
+        self.notebook = ttk.Notebook(self.root)
+        self.notebook.pack(pady=default_pad, fill=tk.BOTH, expand=True)
+
         # Create a scrollable TrackVisualizer instance
-        self.scrollable_canvas = ScrollableCanvas(self.root, TrackVisualizer, width=500, height=200, bg="white")
+        self.scrollable_canvas = ScrollableCanvas(self.notebook, TrackVisualizer, width=500, height=200, bg="white")
         self.scrollable_canvas.pack(pady=default_pad, fill=tk.BOTH, expand=True)
         self.track_visualizer: TrackVisualizer = self.scrollable_canvas.canvas
+        self.notebook.add(self.scrollable_canvas, text="Tracks")
+
+        self.js_frame = tk.Frame(self.notebook)
+        self.js_text = tk.Text(self.js_frame, wrap="word")
+        self.js_text.pack(pady=default_pad, fill=tk.BOTH, expand=True)
+        self.notebook.add(self.js_frame, text="Script")
+
+        self.settings_frame = tk.Frame(self.notebook)
+        self.settings_panel = SettingsPanel(self.settings_frame)
+        self.notebook.add(self.settings_frame, text="Settings")
 
         self.timer = get_task_timer(self.root)
+    def get_settings_panel(self):
+        return self.settings_panel
     def get_command(self):
         return self.entry.get().strip(" ")
     def display_text(self, text=""):
@@ -174,6 +186,8 @@ class RemixView:
         self.track_visualizer.add_track(track)
     def set_data(self, data):
         self.track_visualizer.set_data(data)
+        self.js_text.delete("1.0", tk.END)
+        self.js_text.insert(tk.END, data.get("script", ""))
         self.scrollable_canvas.resize_canvas_to_content()
     def play_music(self):
         self.track_visualizer.play_music()
@@ -181,6 +195,7 @@ class RemixView:
         self.track_visualizer.pause_music()
     def clear_data(self):
         self.track_visualizer.clear_data()
+        self.js_text.delete("1.0", tk.END)
     def set_current_time(self, current_time):
         self.timer.set_current_time(current_time)
     def play_selected_section(self):
@@ -189,126 +204,3 @@ class RemixView:
         self.entry.delete(0, tk.END)
     def skip_ad(self, video):
         get_driver_manager().get_driver(video).skip_ad()
-
-class RemixController:
-    def __init__(self, model: RemixModel, view: RemixView):
-        self.view = view
-        self.view.set_command_handler(self.handle_command)
-        self.model = model
-        self.current_file = ""
-
-    def handle_command(self, event):
-        command = self.view.get_command()
-        tokens = parse_command(command)
-        clear_command = True
-        self.view.display_text("") # clear from previous command
-        match tokens:
-            case ["eval", *args]: # debugging purposes
-                try:
-                    result = eval(command[5:]) 
-                    self.view.display_text(result)
-                    print(result)
-                except Exception as e:
-                    self.view.display_text(repr(e))
-                    print(repr(e))
-            case ["exit"]:
-                self.clear_data()
-                self.view.root.destroy()
-                sys.exit()
-            case ["open", *args]:
-                filename = args[0] if args else askopenfilename()
-                if filename == "":
-                    self.view.display_text("no file chosen")
-                    clear_command = False
-                else:
-                    self.read_data(filename)
-            case ["pause"] | ["stop"]:
-                self.view.pause_music()
-            case ["play"] | ["start"]:
-                self.play_music()
-            case ["play", start, *args] | ["start", start, *args]:
-                self.play_music(float(start))
-            case ["play_section"]:
-                self.view.play_selected_section()
-            case ["reload"]:
-                self.read_data(self.current_file)
-            case ["save"]:
-                write_json_file(self.model.serialize(), self.current_file)
-            case ["save_as", *args]:
-                filename = args[0] if args else asksaveasfilename()
-                if filename == "":
-                    self.view.display_text("no file chosen")
-                    clear_command = False
-                else:
-                    write_json_file(self.model.serialize(), filename)
-            case ["skip_ad", video]:
-                self.view.skip_ad(int(video))
-            case _:
-                self.view.display_text("unknown command")
-                clear_command = False
-        """
-            case ["bpm", *args]:
-                pass
-            case ["seek", *args]:
-                pass
-            case ["add", *args]:
-                pass
-            case ["del", *args]: # edit commands
-                # track number, start beat, number of beats
-                # bpm scale
-                pass
-        """
-        if clear_command:
-            self.view.clear_command()
-    
-    def add_track(self, **kwargs):
-        if not kwargs.get("url", ""):
-            print("add_track: no url")
-            return
-        if not kwargs.get("timing_sections", []):
-            print("add_track: no timing_sections")
-            return
-        url = kwargs.get("url")
-        # each thing is tuple (start_time, bpm)
-        timing_sections = kwargs.get("timing_sections", [])
-        self.view.add_track(url, timing_sections)
-
-    def play_music(self, start_time=0.0):
-        self.view.set_current_time(TimeValue(seconds=start_time))
-        self.view.play_music()
-    
-    def play_music_from_current_time(self):
-        song_beat = self.view.get_song_beat()
-        current_time = self.model.get_time_from_song_beat(song_beat)
-        self.view.set_current_time(current_time)
-        self.view.play_music()
-    
-    def read_data(self, filename):
-        data = read_json_file(filename)
-        if data is None:
-            self.view.display_text(f"cannot open file {filename}")
-        else:
-            self.current_file = filename
-            self.model.set_data(data)
-            self.view.set_data(data)
-            self.view.display_text(f"read data from {filename}")
-    
-    def write_data(self, filename):
-        write_json_file(self.model.serialize(), filename)
-        self.current_file = filename
-        self.view.display_text(f"written data to {filename}")
-    
-    def clear_data(self):
-        self.model.clear_data()
-        self.view.clear_data()
-
-def main():
-    model = RemixModel()
-    view = RemixView()
-    controller = RemixController(model, view)
-    if DEFAULT_FILE:
-        controller.read_data(DEFAULT_FILE)
-    get_tkinter_root().mainloop()
-
-if __name__ == "__main__":
-    main()

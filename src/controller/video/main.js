@@ -313,35 +313,35 @@ function disconnectAllVideos() {
 _observer = null;
 
 /**
- * @param {HTMLVideoElement} newVideoEl
+ * @param {HTMLMediaElement} newMediaEl
  */
-const changeVideo = (newVideoEl) => {
-  connectVideo(newVideoEl)
+const changeVideo = (newMediaEl) => {
+  connectVideo(newMediaEl)
 }
 
 
 /**
- * @param {HTMLVideoElement} video
+ * @param {HTMLMediaElement} video
  */
 const isVideoPlaying = video => !!(video.currentTime > 0 && !video.paused && !video.ended && video.readyState > 2);
 
 
 /**
- * @param {HTMLVideoElement} listenVideoEl
+ * @param {HTMLMediaElement} listenMediaEl
  */
 
-const listenForPlay = (listenVideoEl) => {
-  const listener = videoListeners.get(listenVideoEl);
+const listenForPlay = (listenMediaEl) => {
+  const listener = videoListeners.get(listenMediaEl);
   if (listener === undefined) {
     const listenerCallback = () => {
-      changeVideo(listenVideoEl);
+      changeVideo(listenMediaEl);
     };
-    listenVideoEl.addEventListener('playing', listenerCallback);
-    videoListeners.set(listenVideoEl, listenerCallback);
+    listenMediaEl.addEventListener('playing', listenerCallback);
+    videoListeners.set(listenMediaEl, listenerCallback);
   }
 
-  if (isVideoPlaying(listenVideoEl)) {
-    changeVideo(listenVideoEl);
+  if (isVideoPlaying(listenMediaEl)) {
+    changeVideo(listenMediaEl);
   }
 }
 
@@ -350,17 +350,17 @@ function initVideoObservers() {
     mutations.forEach(function(mutation) {
       if (mutation.addedNodes !== undefined && mutation.addedNodes !== null) {
         for (var i = 0; i < mutation.addedNodes.length; ++i) {
-          var newVideoEl = mutation.addedNodes[i];
+          var newMediaEl = mutation.addedNodes[i];
           // Dom has changed so try and get the video element again.
-          if (!(newVideoEl instanceof HTMLVideoElement)) {
-            if (newVideoEl.querySelectorAll !== undefined) {
-              newVideoEl.querySelectorAll('video').forEach((v) => {
+          if (!(newMediaEl instanceof HTMLMediaElement)) {
+            if (newMediaEl.querySelectorAll !== undefined) {
+              newMediaEl.querySelectorAll('audio, video').forEach((v) => {
                 listenForPlay(v);
               });
             }
             return;
           }
-          listenForPlay(newVideoEl);
+          listenForPlay(newMediaEl);
         }
       }
     });
@@ -375,9 +375,9 @@ function initVideoObservers() {
   _observer.observe(targetNode, observerConfig);
 
   // Try get the video element.
-  videoEls = document.querySelectorAll('video');
+  videoEls = document.querySelectorAll('audio, video');
   videoEls.forEach((v) => {
-    if (v instanceof HTMLVideoElement) {
+    if (v instanceof HTMLMediaElement) {
       listenForPlay(v);
     }
   });

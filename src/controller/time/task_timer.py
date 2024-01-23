@@ -1,7 +1,6 @@
 import threading
 import time
-from time_value import TimeValue
-
+from model.time import TimeValue
 class TaskTimer:
     def __init__(self, root=None):
         self.root = root
@@ -16,6 +15,9 @@ class TaskTimer:
     
     def get_current_time(self):
         return TimeValue(seconds = time.time() - self.start)
+    
+    def get_start_time(self):
+        return TimeValue(seconds = self.start)
     
     def reset(self):
         """

@@ -1,0 +1,1 @@
+from controller.application.controller import RemixController

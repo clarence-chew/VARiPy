@@ -23,17 +23,14 @@ This immutable class stores the data about how to play a particular section of t
 This mutable class manages a browser instance as well as the timing of the video in beats.
 
 ## TODO
-Currently:
-- Feature freeze.
-  - Bugs would be fixed at our discretion.
+
+Manual testing backlog:
+- `<audio>` tags
 
 Very Important:
-- Allow for more tools in JavaScript:
-  - Allow users to specify effects with `.js` files, then reference these functions in the JSON-like file by name.
-  - Probably add some way to specify these effects in the `config.py` file.
-  - Add `effects: ["customEffect"]` in `TrackSection`. Effects are applied in sequence.
+- Add effects into `main.js`
 ```javascript
-// What users specify:
+// What users specify in some file (loaded using config.py):
 function customEffect(context, audioNode) {
   filter = context.createBiquadFilter();
   audioNode.connect(filter);
@@ -41,13 +38,14 @@ function customEffect(context, audioNode) {
   filter.frequency.value = 1000;
   return filter;
 };
-// How it's used
-context = new AudioContext();
-audioNode = context.createMediaElementSource(document.getElementsByTagName("video")[0]);
-audioNode = customEffect(context, audioNode); // apply effect
-// ... (more effects) ...
-audioNode = pitchShift(audioNode); // do pitch shift last
-audioNode.connect(context.destination); // connect to destination
+```
+How it's used in Python:
+```python
+"context = new AudioContext();"
+"audioNode = context.createMediaElementSource(document.getElementsByTagName('video')[0]);"
+f"audioNode = {track_section.effect}(context, audioNode);"
+"audioNode = pitchShift(audioNode);" # do pitch shift last
+"audioNode.connect(context.destination);" # connect to destination
 ```
 
 Important:

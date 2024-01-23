@@ -1,5 +1,6 @@
 DEFAULT_FILE = "examples/example.txt"
 DISCARD_NEGLIGIBLE_SECTIONS = True
+ROBUST_TO_LAG = False
 
 # UI Settings
 TRACK_HEIGHT = 30

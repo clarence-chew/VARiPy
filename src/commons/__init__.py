@@ -1,5 +1,6 @@
 import json
 import tkinter as tk
+import os
 
 def read_file(file):
     """
@@ -71,6 +72,11 @@ def read_json_file(filename):
             return json.load(file)
     except:
         return None
+
+def get_absolute_path(relative_path):
+    #current_directory = os.path.dirname(os.path.abspath(__file__))
+    #return os.path.join(current_directory, relative_path)
+    return os.path.relpath(relative_path)
 
 TKINTER_ROOT = None
 def get_tkinter_root():

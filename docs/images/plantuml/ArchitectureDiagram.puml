@@ -1,0 +1,57 @@
+@startuml ArchitectureDiagram
+!include <office/Concepts/globe_internet>
+!include <office/Concepts/documents>
+!include <office/Users/user>
+!include style.puml
+
+Class "<$user>" as User USER_COLOR
+Class Main #grey
+
+Package "Controller"<<Rectangle>>{
+    Class Application APPLICATION_COLOR
+    Class Settings SETTINGS_COLOR 
+    Class Video #grey
+    Class Time TIME_COLOR
+}
+
+Package "View"<<Rectangle>>{
+    Class Application APPLICATION_COLOR
+    Class Timetable #grey
+    Class Settings SETTINGS_COLOR
+}
+
+Package "Model"<<Rectangle>>{
+    Class Time TIME_COLOR
+    Class Music APPLICATION_COLOR
+    Class Settings SETTINGS_COLOR
+}
+
+Class Commons #grey
+Class "<$documents>" as File FILE_COLOR
+
+
+View.Timetable -down-> Model.Music
+View.Timetable -down-> Model.Time
+View.Settings -down-> Model.Settings
+View.Application -> View.Settings
+View.Application -> View.Timetable
+
+Controller.Video -> Controller.Time
+Controller.Time -down-> Model.Time
+
+Controller.Video -down-> Model.Music
+Controller.Video -down-> Model.Settings
+
+Controller.Application -down-> View.Application
+Controller.Settings -down-> View.Settings
+
+Controller.Application -> Controller.Video
+Controller.Application -> Controller.Settings
+
+Main -down-> Controller.Application
+User -right-> Main
+
+Model -down[hidden]-> Commons
+Model -down[hidden]-> File
+Commons -> File
+@enduml
