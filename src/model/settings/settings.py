@@ -1,6 +1,7 @@
 from tkinter import BooleanVar, StringVar
 from typing import Any
 from weakref import WeakSet
+from commons.observer import ObserverSubject
 
 def create_observable_value(type, value):
     if type == "bool":
@@ -29,15 +30,16 @@ class SettingValue:
 class Settings:
     def __init__(self, json):
         self.settings = { key: SettingValue(value) for key, value in json.items() }
-        self.observers = dict()
+        self.observer_subject = ObserverSubject()
         for key, value in self.settings.items():
-            value.register(lambda *args, key=key: self.notify_observers(key))
+            value.register(lambda *args, key=key: self.observer_subject.notify_observers(key))
 
     def serialize(self):
         return { key: value.serialize() for key, value in self.settings.items() }
 
     def __iter__(self):
         return iter(self.settings.values())
+
     def get(self, key, *default):
         if key in self.settings:
             return self.settings[key].value.get()
@@ -46,12 +48,10 @@ class Settings:
         raise KeyError(key)
 
     def register(self, key, observer):
-        self.observers[key] = self.observers.get(key, WeakSet())
-        self.observers[key].add(observer)
+        self.observer_subject.register(key, observer)
 
     def unregister(self, key, observer):
-        self.observers[key].remove(observer)
+        self.observer_subject.unregister(key, observer)
 
-    def notify_observers(self, key):
-        for observer in self.observers.get(key, WeakSet()):
-            observer()
+    def notify_observers(self, key, *args, **kwargs):
+        self.observer_subject.notify_observers(key, *args, **kwargs)

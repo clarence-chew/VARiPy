@@ -1,5 +1,5 @@
 from commons.command_parser import parse_command
-from commons import write_json_file, read_json_file
+from commons.file import write_json_file, read_json_file
 from model.music import Remix
 from view import RemixView
 from model.time import TimeValue
@@ -7,11 +7,13 @@ from typing import Any
 import sys
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 from controller.settings import SettingsController
+from commons.observer import ObserverSubject
 
 class RemixController:
-    def __init__(self, model: Remix, view: RemixView):
-        self.model = model
-        self.view = view
+    def __init__(self):
+        self.model = Remix()
+        self.command_event_bus = ObserverSubject()
+        self.view = RemixView()
         self.initialize_app()
         self.initialize_data()
     
@@ -37,7 +39,7 @@ class RemixController:
                 except Exception as e:
                     self.view.display_text(repr(e))
                     print(repr(e))
-            case ["exit"]:
+            case ["exit"]: # TODO move these into observers
                 self.clear_data()
                 self.view.root.destroy()
                 sys.exit()
@@ -69,8 +71,13 @@ class RemixController:
                     write_json_file(self.model.serialize(), filename)
             case ["skip_ad", video]:
                 self.view.skip_ad(int(video))
+            case [command, *args]:
+                if not self.command_event_bus.has_observers(command):
+                    self.view.display_text("unknown command: no command targets")
+                    clear_command = False
+                self.command_event_bus.notify_observers(command[0], command=command, tokens=tokens)
             case _:
-                self.view.display_text("unknown command")
+                self.view.display_text("unknown command: parsing error")
                 clear_command = False
         """
             case ["bpm", *args]:

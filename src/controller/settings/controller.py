@@ -1,6 +1,6 @@
 from model.settings import SettingValue, Settings
 from view import SettingsPanel
-from commons import read_json_file, write_json_file
+from commons.file import read_json_file, write_json_file
 
 class SettingsController:
     def __init__(self, view: SettingsPanel):

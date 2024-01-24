@@ -1,5 +1,6 @@
 from bisect import bisect_left
-from commons import read_file, constrain, get_absolute_path
+from commons import constrain
+from commons.file import read_file, get_absolute_path
 from config import DISCARD_NEGLIGIBLE_SECTIONS
 import json
 import os

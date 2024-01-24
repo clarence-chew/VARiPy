@@ -1,6 +1,4 @@
-from commons import read_json_file, write_json_file
-import json
-import os
+from commons.file import read_json_file, write_json_file, get_relative_path_if_in_cwd
 import tkinter as tk
 from tkinter import ttk
 from tkinter.filedialog import askopenfilename
@@ -51,12 +49,6 @@ DEFAULT_SETTINGS = {
         "value": 300
     }
 }
-
-def get_relative_path_if_in_cwd(path):
-    current_directory = os.getcwd()
-    if os.path.commonpath([path, current_directory]) == current_directory:
-        return os.path.relpath(path, current_directory)
-    return path
 
 def browse_file(setting_var, callback=lambda: 0):
     file_path = askopenfilename()
