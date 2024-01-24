@@ -8,4 +8,4 @@ class SettingsController:
         self.view.read_settings()
 
     def get_setting(self, key, *default):
-        self.view.get(key, *default)
+        return self.view.get(key, *default)

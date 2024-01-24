@@ -10,11 +10,18 @@ from controller.settings import SettingsController
 
 class RemixController:
     def __init__(self, model: Remix, view: RemixView):
-        self.view = view
-        self.view.set_command_handler(self.handle_command)
         self.model = model
+        self.view = view
+        self.initialize_app()
+        self.initialize_data()
+    
+    def initialize_app(self):
+        self.view.set_command_handler(self.handle_command)
         self.current_file = ""
         self.settings_controller = SettingsController(self.view.get_settings_panel())
+
+    def initialize_data(self):
+        self.read_data(self.settings_controller.get_setting("DEFAULT_FILE"))
 
     def handle_command(self, event):
         command = self.view.get_command()
