@@ -2,6 +2,7 @@ from commons.file import read_json_file, write_json_file, get_relative_path_if_i
 import tkinter as tk
 from tkinter import ttk
 from tkinter.filedialog import askopenfilename
+from commons import get_tkinter_root
 from model.settings import Settings
 
 DEFAULT_SETTINGS = {
@@ -57,7 +58,7 @@ def browse_file(setting_var, callback=lambda: 0):
         callback()
 
 class SettingsPanel(tk.Frame):
-    def __init__(self, master=None):
+    def __init__(self, master=get_tkinter_root()):
         super().__init__(master)
         self.settings = None
 
@@ -69,7 +70,7 @@ class SettingsPanel(tk.Frame):
             self.columnconfigure(i, weight=1)
 
         # Creating labels and settings
-        for idx, setting in enumerate(self.settings):
+        for idx, (key, setting) in enumerate(self.settings):
             value = setting.value
 
             # Right-align the labels in the left column
@@ -96,6 +97,7 @@ class SettingsPanel(tk.Frame):
                     setting_element.grid(row=idx, column=1, padx=5, pady=5, sticky="w")
                 case other:
                     raise NotImplementedError(f"No UI implemented for setting '{other}'.")
+            self.settings.register(key, self.save_settings)
 
             setting_element.bind("<Key>", self.save_settings)
             setting_element.bind("<FocusOut>", self.save_settings)

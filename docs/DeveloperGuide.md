@@ -47,6 +47,12 @@ f"audioNode = {track_section.effect}(context, audioNode);"
 "audioNode = pitchShift(audioNode);" # do pitch shift last
 "audioNode.connect(context.destination);" # connect to destination
 ```
+- Make all the settings work, removing the config file
+- Make a .bat or .sh file to start the application
+- Split controllers somehow to avoid the multiple-initialization problem?
+  - The multiple-initialization problem appears because Tkinter components are constructed from outside in, but naturally objects are built from inside-out.
+  - Plan: Write a wrapper for Tkinter to build from inside-out. Ignore problem.
+    - Current mitigating solution: Treat controllers as half-initialized. Firstly, the view is initialised, then the data.
 
 Important:
 - Tools to help edit remixes.

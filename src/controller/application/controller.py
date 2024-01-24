@@ -11,19 +11,22 @@ from commons.observer import ObserverSubject
 
 class RemixController:
     def __init__(self):
-        self.model = Remix()
         self.command_event_bus = ObserverSubject()
+        self.model = Remix()
         self.view = RemixView()
-        self.initialize_app()
+        self.initialize_view()
         self.initialize_data()
     
-    def initialize_app(self):
+    def initialize_view(self):
         self.view.set_command_handler(self.handle_command)
-        self.current_file = ""
         self.settings_controller = SettingsController(self.view.get_settings_panel())
 
     def initialize_data(self):
-        self.read_data(self.settings_controller.get_setting("DEFAULT_FILE"))
+        self.settings_controller.initialize_data()
+        self.current_file = ""
+        default_file = self.settings_controller.get_setting("DEFAULT_FILE", "")
+        if default_file:
+            self.read_data(default_file)
 
     def handle_command(self, event):
         command = self.view.get_command()

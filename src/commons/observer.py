@@ -7,7 +7,7 @@ class ObserverSubject:
 
     def register(self, key: Hashable, callback: Callable):
         self.observers[key] = self.observers.get(key, WeakSet())
-        self.observers[key].insert(callback)
+        self.observers[key].add(callback)
 
     def unregister(self, key: Hashable, callback: Callable):
         if key in self.observers and callback in self.observers[key]:

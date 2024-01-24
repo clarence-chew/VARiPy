@@ -38,7 +38,7 @@ class Settings:
         return { key: value.serialize() for key, value in self.settings.items() }
 
     def __iter__(self):
-        return iter(self.settings.values())
+        return iter(self.settings.items())
 
     def get(self, key, *default):
         if key in self.settings:
