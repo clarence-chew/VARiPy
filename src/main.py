@@ -1,5 +1,4 @@
 from commons import get_tkinter_root
-
 from controller.application import RemixController
 
 def main():

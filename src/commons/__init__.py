@@ -1,20 +1,5 @@
 import tkinter as tk
 
-def read_file(file):
-    """
-    Reads the contents of a file and returns them as a string.
-
-    Args:
-        file (str): The path to the file that needs to be read.
-
-    Returns:
-        str: The contents of the file as a string.
-    """
-    file = open(file, "r")
-    data = file.read()
-    file.close()
-    return data
-
 def subdictionary(dictionary, keys):
     """
     Gets a smaller dictionary with only specified keys.
