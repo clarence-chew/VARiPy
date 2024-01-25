@@ -5,52 +5,6 @@ from tkinter.filedialog import askopenfilename
 from commons import get_tkinter_root
 from model.settings import Settings
 
-DEFAULT_SETTINGS = {
-    # Settings on load
-    "DEFAULT_FILE": {
-        "name": "Default File",
-        "type": "path",
-        "value": "examples/example.txt"
-    },
-    # Behaviour
-    "DISCARD_NEGLIGIBLE_SECTIONS": {
-        "name": "Discard Negligible Sections",
-        "type": "bool",
-        "value": True
-    },
-    "RESTART_ON_JS_ERROR": {
-        "name": "Restart on JavaScript Error",
-        "type": "bool",
-        "value": False
-    },
-    "ROBUST_TO_LAG": {
-        "name": "Robust to Lag",
-        "type": "bool",
-        "value": False
-    },
-    "FLUSH_JAVASCRIPT": {
-        "name": "Refresh Page to Set JavaScript",
-        "type": "bool",
-        "value": False
-    },
-    # UI settings
-    "TRACK_HEIGHT": {
-        "name": "Track Height",
-        "type": "int",
-        "value": 30
-    },
-    "MIN_WINDOW_WIDTH": {
-        "name": "Min Window Width",
-        "type": "int",
-        "value": 500
-    },
-    "MIN_WINDOW_HEIGHT": {
-        "name": "Min Window Height",
-        "type": "int",
-        "value": 300
-    }
-}
-
 def browse_file(setting_var, callback=lambda: 0):
     file_path = askopenfilename()
     if file_path:
@@ -114,16 +68,17 @@ class SettingsPanel(tk.Frame):
         except ValueError:
             return False
 
-    def read_settings(self):
+    def read_settings(self, filename, default=None):
         if self.settings is not None:
             print("Warning: Settings have already been initialized.")
             return
-        data = read_json_file("settings.json") or DEFAULT_SETTINGS
+        data = read_json_file(filename) or default or dict()
         self.settings = Settings(data)
+        self.filename = filename
         self.create_widgets()
     
     def save_settings(self, *_):
-        write_json_file(self.settings.serialize(), "settings.json")
+        write_json_file(self.settings.serialize(), self.filename)
 
     def get(self, key, *default):
         return self.settings.get(key, *default)
