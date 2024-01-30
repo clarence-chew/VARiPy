@@ -1,12 +1,10 @@
 from typing import Callable, Hashable
-from weakref import WeakSet
-
 class ObserverSubject:
     def __init__(self):
-        self.observers: dict[Hashable, WeakSet] = dict()
+        self.observers: dict[Hashable, set[Callable]] = dict()
 
     def register(self, key: Hashable, callback: Callable):
-        self.observers[key] = self.observers.get(key, WeakSet())
+        self.observers[key] = self.observers.get(key, set())
         self.observers[key].add(callback)
 
     def unregister(self, key: Hashable, callback: Callable):
@@ -14,8 +12,8 @@ class ObserverSubject:
             self.observers[key].remove(callback)
 
     def has_observers(self, key):
-        return len(self.observers.get(key, WeakSet())) > 0
+        return len(self.observers.get(key, set())) > 0
 
     def notify_observers(self, key: Hashable, *args, **kwargs):
-        for observer in self.observers.get(key, WeakSet()):
+        for observer in self.observers.get(key, set()):
             observer(*args, **kwargs)

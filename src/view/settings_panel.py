@@ -5,11 +5,10 @@ from tkinter.filedialog import askopenfilename
 from commons import get_tkinter_root
 from model.settings import Settings
 
-def browse_file(setting_var, callback=lambda: 0):
+def browse_file(setting_var):
     file_path = askopenfilename()
     if file_path:
         setting_var.set(get_relative_path_if_in_cwd(file_path))
-        callback()
 
 class SettingsPanel(tk.Frame):
     def __init__(self, master=get_tkinter_root()):
@@ -36,7 +35,7 @@ class SettingsPanel(tk.Frame):
                 case "bool":
                     setting_element = tk.Checkbutton(self, variable=value)
                     setting_element.grid(row=idx, column=1, padx=5, pady=5, sticky="w")
-                    setting_element.bind("<ButtonRelease>", self.save_settings)
+                    #setting_element.bind("<ButtonRelease>", self.save_settings)
                 case "int":
                     setting_element = ttk.Entry(self, textvariable=value, validate="key", validatecommand=(self.register(self.validate_int), "%P"))
                     setting_element.grid(row=idx, column=1, padx=5, pady=5, sticky="w")
@@ -44,7 +43,7 @@ class SettingsPanel(tk.Frame):
                     setting_element = tk.Entry(self, textvariable=value, state="readonly")
                     setting_element.grid(row=idx, column=1, padx=5, pady=5, sticky="w")
                     browse_button = tk.Button(self, text="Browse",
-                        command=lambda event=None, value=value: browse_file(value, self.save_settings))
+                        command=lambda *args, value=value: browse_file(value))
                     browse_button.grid(row=idx, column=2, padx=5, pady=5, sticky="w")
                 case "str":
                     setting_element = ttk.Entry(self, textvariable=value)
@@ -52,14 +51,6 @@ class SettingsPanel(tk.Frame):
                 case other:
                     raise NotImplementedError(f"No UI implemented for setting '{other}'.")
             self.settings.register(key, self.save_settings)
-
-            setting_element.bind("<Key>", self.save_settings)
-            setting_element.bind("<FocusOut>", self.save_settings)
-            setting_element.bind("<Control-c>", self.save_settings)
-            setting_element.bind("<Control-v>", self.save_settings)
-
-        # Bind <MouseWheel> event to the entire frame
-        self.bind("<MouseWheel>", self.save_settings)
 
     def validate_int(self, new_value):
         try:

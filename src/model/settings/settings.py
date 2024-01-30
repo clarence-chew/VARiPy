@@ -1,7 +1,25 @@
-from tkinter import BooleanVar, StringVar
+from tkinter import BooleanVar, StringVar, Variable
 from typing import Any
-from weakref import WeakSet
 from commons.observer import ObserverSubject
+
+class DictVar(Variable):
+    def __init__(self, master=None, value=None, name=None):
+        super().__init__(master=master, name=name)
+        self.value = dict(value)
+    def get(self):
+        return dict(self.value)
+    def get_key(self, key, *default):
+        return self.value.get(key, *default)
+    def set(self, value):
+        self.value = dict(value)
+    def set_key(self, key, value):
+        self.value[key] = value
+    def trace_add(self, mode, callback):
+        super().trace_add(mode, callback)
+    def trace_info(self):
+        return super().trace_info()
+    def trace_remove(self, mode, cbname):
+        super().trace_remove(mode, cbname)
 
 def create_observable_value(type, value):
     if type == "bool":
