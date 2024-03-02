@@ -1,1 +1,1 @@
-from controller.time.task_timer import get_task_timer
+from controller.time.tkinter_task_timer import get_task_timer
