@@ -11,3 +11,8 @@ __pycache__/
 
 # Settings
 settings.json
+
+# Packaging files
+dist/*
+src/varipy.egg-info/*
+varipy.egg-info/*
