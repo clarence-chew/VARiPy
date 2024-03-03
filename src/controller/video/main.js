@@ -63,7 +63,8 @@ var delayTime = 0.100;
 var fadeTime = 0.050;
 var bufferTime = 0.100;
 
-function Jungle(context) {
+class Jungle {
+  constructor(context) {
     this.context = context;
     // Create nodes for the input and output of this "module".
     var input = context.createGain();
@@ -119,7 +120,7 @@ function Jungle(context) {
     var fade1 = context.createBufferSource();
     var fade2 = context.createBufferSource();
     var fadeBuffer = createFadeBuffer(context, bufferTime, fadeTime);
-    fade1.buffer = fadeBuffer
+    fade1.buffer = fadeBuffer;
     fade2.buffer = fadeBuffer;
     fade1.loop = true;
     fade2.loop = true;
@@ -166,73 +167,71 @@ function Jungle(context) {
     this.delay2 = delay2;
 
     this.setDelay(delayTime);
+  }
+  setDelay(delayTime) {
+    this.modGain1.gain.setTargetAtTime(0.5 * delayTime, this.context.currentTime, 0.010);
+    this.modGain2.gain.setTargetAtTime(0.5 * delayTime, this.context.currentTime, 0.010);
+  }
+  setPitchOffset(mult) {
+    // Divide by 2 for semitones
+    mult = this.transpose(mult / 2);
+    if (mult > 0) { // pitch up
+      this.mod1Gain.gain.value = 0;
+      this.mod2Gain.gain.value = 0;
+      this.mod3Gain.gain.value = 1;
+      this.mod4Gain.gain.value = 1;
+    } else { // pitch down
+      this.mod1Gain.gain.value = 1;
+      this.mod2Gain.gain.value = 1;
+      this.mod3Gain.gain.value = 0;
+      this.mod4Gain.gain.value = 0;
+    }
+    this.setDelay(delayTime * Math.abs(mult));
+    this.previousPitch = mult;
+    previousPitch = mult;
+  }
+  // Strange stuff taken from:
+  // https://github.com/mmckegg/soundbank-pitch-shift/blob/master/index.js
+  //
+  // Looks like the author did some regression to guess the pitch function.
+  //
+  // Anyway, it sounds okay for an experiment.
+  //
+  transpose(x) {
+
+    if (x < 0) {
+      return x / 12;
+    } else if (x == 0) {
+      return 0;
+    } else {
+      var a5 = 1.8149080040913423e-7;
+      var a4 = -0.000019413043101157434;
+      var a3 = 0.0009795096626987743;
+      var a2 = -0.014147877819596033;
+      var a1 = 0.23005591195033048;
+      var a0 = 0.02278153473118749;
+
+      var x1 = x;
+      var x2 = x * x;
+      var x3 = x * x * x;
+      var x4 = x * x * x * x;
+      var x5 = x * x * x * x * x;
+
+      return a0 + x1 * a1 + x2 * a2 + x3 * a3 + x4 * a4 + x5 * a5;
+    }
+
+  }
 }
 
-Jungle.prototype.setDelay = function(delayTime) {
-    this.modGain1.gain.setTargetAtTime(0.5*delayTime, this.context.currentTime, 0.010);
-    this.modGain2.gain.setTargetAtTime(0.5*delayTime, this.context.currentTime, 0.010);
-}
 
 var previousPitch = -1;
 
-Jungle.prototype.setPitchOffset = function(mult) {
-    // Divide by 2 for semitones
-    mult = this.transpose(mult / 2);
-    if (mult>0) { // pitch up
-        this.mod1Gain.gain.value = 0;
-        this.mod2Gain.gain.value = 0;
-        this.mod3Gain.gain.value = 1;
-        this.mod4Gain.gain.value = 1;
-    } else { // pitch down
-        this.mod1Gain.gain.value = 1;
-        this.mod2Gain.gain.value = 1;
-        this.mod3Gain.gain.value = 0;
-        this.mod4Gain.gain.value = 0;
-    }
-    this.setDelay(delayTime*Math.abs(mult));
-    this.previousPitch = mult;
-    previousPitch = mult;
-}
 
 
-// Strange stuff taken from:
-// https://github.com/mmckegg/soundbank-pitch-shift/blob/master/index.js
-//
-// Looks like the author did some regression to guess the pitch function.
-//
-// Anyway, it sounds okay for an experiment.
-//
-Jungle.prototype.transpose = function (x){
-
-  if (x<0){
-    return x/12
-  } else if (x == 0) {
-    return 0;
-  } else {
-    var a5 = 1.8149080040913423e-7
-    var a4 = -0.000019413043101157434
-    var a3 = 0.0009795096626987743
-    var a2 = -0.014147877819596033
-    var a1 = 0.23005591195033048
-    var a0 = 0.02278153473118749
-
-    var x1 = x
-    var x2 = x*x
-    var x3 = x*x*x
-    var x4 = x*x*x*x
-    var x5 = x*x*x*x*x
-
-    return a0 + x1*a1 + x2*a2 + x3*a3 + x4*a4 + x5*a5
-  }
-
-}
 
 /**
  * Todo: probably make a custom video player which we can chain parts of a video together
  */
-
-var _audioCtx = null;
-var _jungle = null;
 var _previousPlaybackRate = 1;
 var _previousPitch = 0;
 
@@ -241,19 +240,19 @@ var transpose = true;
 let videoConnected = false;
 
 function getAudioContext() {
-  if (!_audioCtx) {
-    _audioCtx = new AudioContext();
+  if (!window._audioCtx) {
+    window._audioCtx = new AudioContext();
   }
-  return _audioCtx;
+  return window._audioCtx;
 }
 
 function getJungle() {
-  if (!_jungle) {
+  if (!window._jungle) {
     const audioCtx = getAudioContext();
-    _jungle = new Jungle(audioCtx);
-    _jungle.output.connect(audioCtx.destination);
+    window._jungle = new Jungle(audioCtx);
+    window._jungle.output.connect(audioCtx.destination);
   }
-  return _jungle;
+  return window._jungle;
 }
 
 const outputNodeMap = new Map();
