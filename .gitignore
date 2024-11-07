@@ -3,6 +3,16 @@
 
 # Visual Studio Code
 *.code-workspace
+.vscode/
 
 # Python Files
 __pycache__/
+.pytest_cache/
+
+# Settings
+settings.json
+
+# Packaging files
+dist/*
+src/varipy.egg-info/*
+varipy.egg-info/*

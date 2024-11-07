@@ -1,4 +1,4 @@
-from time_value import TimeValue
+from model.time.time_value import TimeValue
 
 class BeatTimer():
     def __init__(self, sections):

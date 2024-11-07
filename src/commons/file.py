@@ -1,5 +1,5 @@
 import json
-import tkinter as tk
+import os
 
 def read_file(file):
     """
@@ -15,33 +15,6 @@ def read_file(file):
     data = file.read()
     file.close()
     return data
-
-def subdictionary(dictionary, keys):
-    """
-    Gets a smaller dictionary with only specified keys.
-
-    Args:
-        dictionary (dict): The dictionary from which a subdictionary needs to be extracted.
-        keys (list): The list of keys to include in the subdictionary.
-
-    Returns:
-        dict: A new dictionary containing only the specified keys from the original dictionary.
-    """
-    return {key: dictionary[key] for key in keys if key in dictionary}
-
-def constrain(value, min_val, max_val):
-    """
-    Constrains a value within a given range.
-
-    Args:
-        value (numeric): The value to be constrained.
-        min_val (numeric): The minimum value for the constraint.
-        max_val (numeric): The maximum value for the constraint.
-
-    Returns:
-        numeric: The constrained value.
-    """
-    return max(min_val, min(max_val, value))
 
 def write_json_file(data, filename):
     """
@@ -72,9 +45,14 @@ def read_json_file(filename):
     except:
         return None
 
-TKINTER_ROOT = None
-def get_tkinter_root():
-    global TKINTER_ROOT
-    if TKINTER_ROOT is None:
-        TKINTER_ROOT = tk.Tk()
-    return TKINTER_ROOT
+def get_absolute_path(relative_path):
+    #current_directory = os.path.dirname(os.path.abspath(__file__))
+    #return os.path.join(current_directory, relative_path)
+    return os.path.relpath(relative_path)
+
+def get_relative_path_if_in_cwd(path):
+    current_directory = os.getcwd()
+    if os.path.commonpath([path, current_directory]) == current_directory:
+        return os.path.relpath(path, current_directory)
+    return path
+

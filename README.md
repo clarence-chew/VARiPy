@@ -1,8 +1,8 @@
 # VARiPy: Video-Audio Remix in Python
 
-Remix online music from various videos. You can specify which online videos to use.
+Remix online music from various online audio sources. You can specify which online videos or online audio sources to use by their URL.
 
-This uses Chrome WebDriver to play videos online. With a bit of JavaScript and Python, we can modify the videos and play them at certain times to form remixes.
+This uses the Chrome WebDriver to play online audio sources. With a bit of JavaScript and Python, we can modify the videos and play them at certain times to form remixes.
 
 This program specifies the timing using beats, so videos need to be timed in beats, and the timing of the remix is also given in beats.
 

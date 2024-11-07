@@ -7,7 +7,8 @@ class TrackSection():
         self.song_beat = kwargs["song_beat"] # what time in the song to play
         self.start_beat = kwargs["start_beat"] # when the cropped section starts
         self.duration_beats = kwargs["duration_beats"] # duration in video beats
-        self.track_beats_per_song_beat = kwargs["track_beats_per_song_beat"]
+        self.track_beats_per_song_beat = kwargs.get("track_beats_per_song_beat", 1)
+        self.effect = kwargs.get("effect", "")
         self.pitch = kwargs.get("pitch", 0)
         self.volume = constrain(kwargs.get("volume", 1), 0, 1)
 
@@ -36,6 +37,7 @@ class TrackSection():
             "start_beat": self.start_beat,
             "duration_beats": self.duration_beats,
             "track_beats_per_song_beat": self.track_beats_per_song_beat,
+            "effect": self.effect,
             "pitch": self.pitch,
             "volume": self.volume
         }

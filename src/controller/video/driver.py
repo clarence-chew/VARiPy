@@ -1,24 +1,20 @@
 from bisect import bisect_left
-from commons import read_file, constrain
+from commons import constrain
+from commons.file import read_file, get_absolute_path
 from config import DISCARD_NEGLIGIBLE_SECTIONS
 import json
 import os
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException, JavascriptException
 from selenium.webdriver.chrome.service import Service
-from task_timer import get_task_timer
-from time_value import TimeValue
-from timing import BeatTimer, OffsetBeatTimer
-from track_section import TrackSection
+from controller.time import get_task_timer
+from model.time import TimeValue, BeatTimer, OffsetBeatTimer
+from model.music import TrackSection
 
 MILLISECONDS_PER_SECOND = 1000
 
-def get_absolute_path(relative_path):
-    current_directory = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(current_directory, relative_path)
-
 DRIVER_PATH = get_absolute_path("chromedriver.exe")
-VIDEO_JS_CODE = read_file("min_js.txt")
+VIDEO_JS_CODE = read_file("src/controller/video/main.js")
 
 def get_chrome_driver(window_name=None):
     # Create the absolute path by joining the current directory and the relative path
@@ -89,8 +85,8 @@ class TrackDriver():
     def inject_scripts(self):
         self.driver.execute_script(VIDEO_JS_CODE)
         self.driver.execute_script("window.trackTimeout=setInterval("
-            "()=>{let v=document.getElementsByTagName('video')[0];"
-            "v&&(v.pause(),clearInterval(window.trackTimeout),console.log('clear'))}, 500)")
+            "()=>{let v=document.getElementsByTagName('video')[0], a=document.getElementsByTagName('audio')[0];"
+            "(v||a)&&(v&&(v.pause(),window.mediaType='video')||(window.mediaType='audio'),clearInterval(window.trackTimeout))}, 500)")
 
     def set_url(self, url):
         # Don't reload pages that are already correct.
@@ -130,7 +126,7 @@ class TrackDriver():
         speed = constrain(kwargs.get("speed", 1), 1/16, 16)
         volume = constrain(kwargs.get("volume", 1), 0, 1)
         self.execute_script(
-            f"window.video=document.getElementsByTagName('video')[0];"
+            f"window.video=document.getElementsByTagName(window.mediaType)[0];"
             f"window.video.currentTime={start_time};"
             f"window.video.volume={volume};"
             f"window.setPitchSpeed({pitch},{speed});"
@@ -142,7 +138,7 @@ class TrackDriver():
         """
         Pauses the video.
         """
-        self.execute_script("document.getElementsByTagName('video')[0].pause();clearInterval(window.trackTimeout);")
+        self.execute_script("document.getElementsByTagName(window.mediaType)[0].pause();clearInterval(window.trackTimeout);")
 
     def exit(self):
         """
@@ -196,7 +192,8 @@ class BeatTrackDriver():
             video_beat_pointer += current_beats
         pitch = track_section.pitch
         volume = constrain(track_section.volume, 0, 1)
-        current_time = get_task_timer().get_current_time()
+        task_timer = get_task_timer()
+        current_time = task_timer.get_current_time()
         start_index = bisect_left(const_speed_sections,
             current_time.milliseconds, key=lambda x: x[0])
         if start_index == len(const_speed_sections):
@@ -206,11 +203,11 @@ class BeatTrackDriver():
         # number of seconds ago this section started
         section_time = current_time.seconds - (const_speed_sections[start_index - 1][0]/1000 if start_index else section_start_time.seconds)
         start_time = const_speed_sections[start_index][1] + section_time * speed
-        script = "window.video=document.getElementsByTagName('video')[0];window.video.pause();"\
+        script = "window.video=document.getElementsByTagName(window.mediaType)[0];window.video.pause();"\
             f"window.speedIndex={start_index};window.speedData={json.dumps(const_speed_sections)};"\
             f"window.video.currentTime={start_time};window.video.volume={volume};window.pitch={pitch};"\
             f"window.setPitchSpeed({pitch},{speed});"\
-            f"window.video.play();window.playTime=Date.now()-{current_time.milliseconds};"\
+            f"window.video.play();window.playTime={task_timer.get_start_time().milliseconds};"\
             "clearTimeout(window.trackTimeout);"\
             "window.trackTimeout=setTimeout(timeoutFn,Math.max(0,window.speedData[window.speedIndex][0]-Date.now()+window.playTime))"
         self.track_driver.execute_script(script)

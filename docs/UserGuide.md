@@ -14,6 +14,7 @@
 - You can use `config.py` to set the default file as the one you are working on, or simply use `open` to open your file.
 - Keep your text editor open to edit the file.
 - When you want to load the edited file into the program, use the `reload` command.
+- As of last checked, Nico Nico Douga does not have good support for changing the speed of videos.
 
 ## UI Explanation
 
