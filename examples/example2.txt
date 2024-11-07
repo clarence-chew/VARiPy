@@ -81,28 +81,12 @@
           "track_beats_per_song_beat": 1,
           "pitch": 5,
           "volume": 1
-        },
-        {
-          "song_beat": 512,
-          "start_beat": 304,
-          "duration_beats": 64,
-          "track_beats_per_song_beat": 1,
-          "pitch": 5,
-          "volume": 1
-        },
-        {
-          "song_beat": 512,
-          "start_beat": 304,
-          "duration_beats": 64,
-          "track_beats_per_song_beat": 1,
-          "pitch": 5,
-          "volume": 1
         }
       ]
     },
     {
-      "url": "https://www.nicovideo.jp/watch/sm26111500",
-      "timing_offset": 0.88,
+      "url": "https://www.youtube.com/watch?v=vKhpQTYOpUU",
+      "timing_offset": 0.53,
       "timing_sections": [
         [
           Infinity,
